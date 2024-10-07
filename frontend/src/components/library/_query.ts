@@ -18,6 +18,14 @@ export interface Album extends MinimalAlbum {
     [key: string]: unknown; // enable indexing item[key]
     items?: MinimalItem[];
 
+    artist?: string; // if this field exists depends on which part of beets we ask. looking up online data does have it, library queries dont.
+
+    // not sure how we best type this.
+    // these are fields from candidate lookups
+    data_source?: string; // "MusicBrainz"
+    data_url?: string; // "https://musicbrainz.org/release/bf06691a-4e43-4e9b-94a7-2d733f2976d9";
+
+    // these are fields from the library
     added?: number; // 1707767640.980912
     album?: string; // "Away From the Sun"
     albumartist_credit?: string; // "3 Doors Down"
@@ -280,18 +288,18 @@ export interface SearchResult<T extends MinimalItem | MinimalAlbum> {
 
 export const searchQueryOptions = <T extends MinimalItem | MinimalAlbum>({
     searchFor,
-    kind,
+    type,
 }: {
     searchFor: string;
-    kind: "item" | "album";
+    type: "item" | "album";
 }) =>
     queryOptions({
-        queryKey: ["search", kind, searchFor],
+        queryKey: ["search", type, searchFor],
         queryFn: async ({ signal }) => {
             const expand = false;
             const minimal = true;
             const url = _url_parse_minimal_expand(
-                `/library/${kind}/query/${encodeURIComponent(searchFor)}`,
+                `/library/${type}/query/${encodeURIComponent(searchFor)}`,
                 {
                     expand,
                     minimal,
